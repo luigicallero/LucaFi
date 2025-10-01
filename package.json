@@ -1,23 +1,28 @@
 {
-  "name": "web3-wallet-app",
-  "version": "0.1.0",
+  "name": "lucafi",
+  "version": "1.0.0",
   "private": true,
+  "description": "Decentralized Finance Platform - Deposit USDC and earn 5% weekly returns",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.2",
+    "ethers": "^6.15.0",
+    "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.4"
+    "viem": "^2.37.9",
+    "wagmi": "^2.17.5"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
