@@ -53,8 +53,8 @@ export default function Home() {
             </span>
           </h2>
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Watch your balance grow in real-time. Compound interest calculated every second.
-            Withdraw anytime with zero lock-up periods.
+            Earn 5% on your deposits after 7 days. Withdraw capital anytime,
+            profits available after the lock period.
           </p>
         </div>
 
@@ -91,11 +91,11 @@ export default function Home() {
             
             <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-600 transition-all hover:shadow-lg">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-2xl">⚡</span>
+                <span className="text-2xl">⏰</span>
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Real-time Updates</h3>
+              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">7-Day Profit Lock</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Watch your balance grow every second with live interest calculations
+                Earn 5% on your deposits after 7 days, with flexible withdrawal options
               </p>
             </div>
             
@@ -103,9 +103,9 @@ export default function Home() {
               <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-600 rounded-lg flex items-center justify-center mb-4">
                 <span className="text-2xl">🔓</span>
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">No Lock-up Period</h3>
+              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Flexible Withdrawals</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Withdraw your funds anytime without penalties or waiting periods
+                Withdraw your capital anytime. After 7 days, withdraw profits or everything
               </p>
             </div>
             
@@ -147,9 +147,9 @@ export default function Home() {
               <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-red-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg">
                 3
               </div>
-              <h4 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">Watch It Grow</h4>
+              <h4 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">Earn & Withdraw</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Your balance increases every second at 5% weekly rate
+                After 7 days, earn 5% and choose how to withdraw your funds
               </p>
             </div>
           </div>
@@ -159,19 +159,19 @@ export default function Home() {
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-xl text-white text-center shadow-lg">
             <div className="text-3xl md:text-4xl font-bold mb-1">5%</div>
-            <div className="text-sm opacity-90">Weekly APY</div>
+            <div className="text-sm opacity-90">Weekly Returns</div>
           </div>
           <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-6 rounded-xl text-white text-center shadow-lg">
-            <div className="text-3xl md:text-4xl font-bold mb-1">260%</div>
-            <div className="text-sm opacity-90">Annual APY</div>
+            <div className="text-3xl md:text-4xl font-bold mb-1">7</div>
+            <div className="text-sm opacity-90">Days to Unlock</div>
           </div>
           <div className="bg-gradient-to-br from-pink-500 to-red-600 p-6 rounded-xl text-white text-center shadow-lg">
-            <div className="text-3xl md:text-4xl font-bold mb-1">24/7</div>
-            <div className="text-sm opacity-90">Compounding</div>
+            <div className="text-3xl md:text-4xl font-bold mb-1">3</div>
+            <div className="text-sm opacity-90">Withdrawal Options</div>
           </div>
           <div className="bg-gradient-to-br from-orange-500 to-red-600 p-6 rounded-xl text-white text-center shadow-lg">
             <div className="text-3xl md:text-4xl font-bold mb-1">0</div>
-            <div className="text-sm opacity-90">Lock-up Days</div>
+            <div className="text-sm opacity-90">Capital Lock</div>
           </div>
         </div>
       </div>

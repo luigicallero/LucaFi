@@ -21,6 +21,7 @@ export function DepositCard() {
 
   const usdcAddress = USDC_ADDRESSES[chainId as keyof typeof USDC_ADDRESSES]
   const isBSC = chainId === 56 || chainId === 97
+  const USDC_DECIMALS = 6 // USDC uses 6 decimals, not 18
 
   // Read USDC balance
   const { data: usdcBalance } = useReadContract({
@@ -59,7 +60,7 @@ export function DepositCard() {
     }
   }, [address])
 
-  // Update balance like a chronometer (every 50ms for smooth animation)
+  // Update balance (recalculates when deposits change or every minute)
   useEffect(() => {
     if (deposits.length === 0) {
       setCurrentBalance(0)
@@ -74,8 +75,8 @@ export function DepositCard() {
     }
 
     updateBalance()
-    // Update every 50ms (20 times per second) for smooth chronometer effect
-    const interval = setInterval(updateBalance, 50)
+    // Update every minute to check if 7 days have passed
+    const interval = setInterval(updateBalance, 60000)
 
     return () => clearInterval(interval)
   }, [deposits])
@@ -85,7 +86,7 @@ export function DepositCard() {
     
     setIsApproving(true)
     try {
-      const amount = parseUnits(depositAmount, 18)
+      const amount = parseUnits(depositAmount, USDC_DECIMALS)
       approveWrite({
         address: usdcAddress,
         abi: ERC20_ABI,
@@ -138,6 +139,13 @@ export function DepositCard() {
   const totalEarned = currentBalance - totalDeposited
   const weeklyRate = 5 // 5% per week
 
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num)
+  }
+
   if (!mounted) return null
 
   if (!isConnected) {
@@ -183,23 +191,17 @@ export function DepositCard() {
         </div>
         
         <div className="mb-6">
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white font-mono tabular-nums">
-              {currentBalance.toFixed(10)}
+          <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2 mb-1">
+            <span className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white font-mono tabular-nums break-all">
+              {formatNumber(currentBalance)}
             </span>
-            <span className="text-2xl font-semibold text-gray-600 dark:text-gray-400">
+            <span className="text-xl sm:text-2xl font-semibold text-gray-600 dark:text-gray-400 flex-shrink-0">
               USDC
             </span>
           </div>
           {totalEarned > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-green-600 dark:text-green-400 font-medium font-mono">
-                + {totalEarned.toFixed(10)} USDC earned
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-green-600 dark:text-green-400">Live</span>
-              </div>
+            <div className="text-sm text-green-600 dark:text-green-400 font-medium font-mono">
+              + {formatNumber(totalEarned)} USDC earned
             </div>
           )}
         </div>
@@ -207,14 +209,14 @@ export function DepositCard() {
         <div className="grid grid-cols-2 gap-4 p-4 bg-white/50 dark:bg-gray-900/50 rounded-xl">
           <div>
             <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Deposited</div>
-            <div className="text-lg font-bold text-gray-900 dark:text-white">
-              {totalDeposited.toFixed(2)} USDC
+            <div className="text-base sm:text-lg font-bold text-gray-900 dark:text-white break-words">
+              {formatNumber(totalDeposited)} USDC
             </div>
           </div>
           <div>
-            <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Rate per Second</div>
-            <div className="text-lg font-bold text-gray-900 dark:text-white">
-              +{(RATE_PER_SECOND * 100).toFixed(9)}%
+            <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Weekly Rate</div>
+            <div className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+              {weeklyRate}%
             </div>
           </div>
         </div>
@@ -228,7 +230,7 @@ export function DepositCard() {
         
         <div className="mb-4">
           <label className="text-sm text-gray-600 dark:text-gray-400 mb-2 block">
-            Your USDC Balance: {usdcBalance ? formatUnits(usdcBalance as bigint, 18) : '0.00'} USDC
+            Your USDC Balance: {usdcBalance ? formatNumber(parseFloat(formatUnits(usdcBalance as bigint, USDC_DECIMALS))) : '0.00'} USDC
           </label>
           <div className="relative">
             <input
@@ -271,7 +273,7 @@ export function DepositCard() {
             onClick={handleWithdraw}
             className="w-full mt-3 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl transition-colors"
           >
-            Withdraw All ({currentBalance.toFixed(2)} USDC)
+            Withdraw All ({formatNumber(currentBalance)} USDC)
           </button>
         )}
 
@@ -281,9 +283,9 @@ export function DepositCard() {
             <div className="text-sm text-blue-800 dark:text-blue-200">
               <p className="font-medium mb-1">How it works:</p>
               <ul className="space-y-1 text-xs">
-                <li>• Earn 5% weekly on your USDC deposits</li>
-                <li>• Interest compounds every second automatically</li>
-                <li>• Withdraw anytime with your accumulated earnings</li>
+                <li>• Earn 5% after 7 days on your USDC deposits</li>
+                <li>• Withdraw capital anytime, profits available after 7 days</li>
+                <li>• After 7 days: withdraw capital only, profit only, or both</li>
                 <li>• Currently in demo mode - deposits stored locally</li>
               </ul>
             </div>
@@ -311,20 +313,20 @@ export function DepositCard() {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">Deposit #{index + 1}</div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">
-                        {deposit.amount.toFixed(2)} USDC
+                      <div className="text-base sm:text-lg font-bold text-gray-900 dark:text-white break-words">
+                        {formatNumber(deposit.amount)} USDC
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-sm text-gray-600 dark:text-gray-400">Current Value</div>
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400 font-mono tabular-nums">
-                        {current.toFixed(10)} USDC
+                      <div className="text-base sm:text-lg font-bold text-green-600 dark:text-green-400 font-mono tabular-nums break-words">
+                        {formatNumber(current)} USDC
                       </div>
                     </div>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <div className="text-green-600 dark:text-green-400 font-medium font-mono tabular-nums">
-                      +{earned.toFixed(10)} USDC earned
+                      +{formatNumber(earned)} USDC earned
                     </div>
                     <div className="text-gray-500 dark:text-gray-400">
                       {days > 0 && `${days}d `}{hours}h {minutes}m ago

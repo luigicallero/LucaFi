@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# foundry / solidity
+cache/
+out/
+broadcast/
+*.env.local
+.env.local

@@ -1,16 +1,33 @@
 'use client'
 
-import { useAccount, useConnect, useDisconnect, useBalance, useChainId } from 'wagmi'
-import { formatEther } from 'viem'
+import { useAccount, useConnect, useDisconnect, useBalance, useChainId, useReadContract } from 'wagmi'
+import { formatEther, formatUnits } from 'viem'
 import { useEffect, useState } from 'react'
+import { USDC_ADDRESSES, ERC20_ABI } from '@/lib/contracts'
 
 export function WalletConnect() {
   const { address, isConnected } = useAccount()
   const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
   const chainId = useChainId()
-  const { data: balance } = useBalance({
+  const USDC_DECIMALS = 6
+
+  const usdcAddress = USDC_ADDRESSES[chainId as keyof typeof USDC_ADDRESSES]
+
+  // Get native balance (BNB/ETH)
+  const { data: nativeBalance } = useBalance({
     address: address,
+  })
+
+  // Get USDC balance
+  const { data: usdcBalance } = useReadContract({
+    address: usdcAddress,
+    abi: ERC20_ABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address && !!usdcAddress,
+    },
   })
 
   const [mounted, setMounted] = useState(false)
@@ -28,12 +45,21 @@ export function WalletConnect() {
       case 1: return 'Ethereum Mainnet'
       case 11155111: return 'Sepolia'
       case 137: return 'Polygon'
+      case 56: return 'BSC Mainnet'
+      case 97: return 'BSC Testnet'
       default: return `Chain ID: ${id}`
     }
   }
 
   const formatAddress = (addr: string) => {
     return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`
+  }
+
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num)
   }
 
   return (
@@ -141,17 +167,37 @@ export function WalletConnect() {
             </div>
 
             {/* Balance Display */}
-            <div className="mt-6 p-6 bg-white dark:bg-gray-900 rounded-xl border-2 border-green-300 dark:border-green-700">
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 block">
-                Your Balance
-              </label>
-              <div className="flex items-baseline gap-2">
-                <span className="text-5xl font-bold text-gray-900 dark:text-white">
-                  {balance ? parseFloat(formatEther(balance.value)).toFixed(6) : '0.000000'}
-                </span>
-                <span className="text-2xl font-semibold text-gray-600 dark:text-gray-400">
-                  {balance?.symbol || 'ETH'}
-                </span>
+            <div className="mt-6 space-y-4">
+              {/* USDC Balance */}
+              {usdcAddress && (
+                <div className="p-6 bg-white dark:bg-gray-900 rounded-xl border-2 border-green-300 dark:border-green-700">
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 block">
+                    USDC Balance
+                  </label>
+                  <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                    <span className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white font-mono tabular-nums break-all">
+                      {usdcBalance ? formatNumber(parseFloat(formatUnits(usdcBalance as bigint, USDC_DECIMALS))) : '0.00'}
+                    </span>
+                    <span className="text-xl sm:text-2xl font-semibold text-gray-600 dark:text-gray-400 flex-shrink-0">
+                      USDC
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Native Balance (BNB/ETH) */}
+              <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 block">
+                  Native Balance ({nativeBalance?.symbol || 'ETH'})
+                </label>
+                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                  <span className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300 font-mono tabular-nums">
+                    {nativeBalance ? parseFloat(formatEther(nativeBalance.value)).toFixed(4) : '0.0000'}
+                  </span>
+                  <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 flex-shrink-0">
+                    {nativeBalance?.symbol || 'ETH'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
