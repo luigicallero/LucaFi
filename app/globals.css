@@ -24,3 +24,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Testnet Mode Theme */
+.testnet-mode {
+  --testnet-bg-from: #f3f4f6;
+  --testnet-bg-via: #e5e7eb;
+  --testnet-bg-to: #d1d5db;
+}
+
+@media (prefers-color-scheme: dark) {
+  .testnet-mode {
+    --testnet-bg-from: #1f2937;
+    --testnet-bg-via: #374151;
+    --testnet-bg-to: #4b5563;
+  }
+}
+
+.testnet-mode > div {
+  background: linear-gradient(to bottom right, var(--testnet-bg-from), var(--testnet-bg-via), var(--testnet-bg-to)) !important;
+  transition: background 0.5s ease-in-out;
+}

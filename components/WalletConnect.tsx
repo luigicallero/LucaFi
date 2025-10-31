@@ -13,6 +13,7 @@ export function WalletConnect() {
   const USDC_DECIMALS = 6
 
   const usdcAddress = USDC_ADDRESSES[chainId as keyof typeof USDC_ADDRESSES]
+  const isTestnet = chainId === 97
 
   // Get native balance (BNB/ETH)
   const { data: nativeBalance } = useBalance({
@@ -109,11 +110,19 @@ export function WalletConnect() {
       ) : (
         <div className="space-y-6">
           {/* Account Info Card */}
-          <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-950 p-8 rounded-2xl border border-green-200 dark:border-green-800 shadow-xl">
+          <div className={`p-8 rounded-2xl shadow-xl transition-colors duration-500 ${
+            isTestnet 
+              ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 border-2 border-gray-300 dark:border-gray-600' 
+              : 'bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-950 border border-green-200 dark:border-green-800'
+          }`}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <svg 
-                  className="w-8 h-8 text-green-600 dark:text-green-400" 
+                  className={`w-8 h-8 transition-colors ${
+                    isTestnet 
+                      ? 'text-gray-600 dark:text-gray-400' 
+                      : 'text-green-600 dark:text-green-400'
+                  }`}
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -126,6 +135,11 @@ export function WalletConnect() {
                   />
                 </svg>
                 Connected
+                {isTestnet && (
+                  <span className="text-xs bg-orange-200 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-2 py-1 rounded-full font-medium">
+                    TEST MODE
+                  </span>
+                )}
               </h2>
               <button
                 onClick={() => disconnect()}
@@ -170,10 +184,21 @@ export function WalletConnect() {
             <div className="mt-6 space-y-4">
               {/* USDC Balance */}
               {usdcAddress && (
-                <div className="p-6 bg-white dark:bg-gray-900 rounded-xl border-2 border-green-300 dark:border-green-700">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 block">
-                    USDC Balance
-                  </label>
+                <div className={`p-6 bg-white dark:bg-gray-900 rounded-xl border-2 transition-colors ${
+                  isTestnet
+                    ? 'border-gray-400 dark:border-gray-600'
+                    : 'border-green-300 dark:border-green-700'
+                }`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                      USDC Balance
+                    </label>
+                    {isTestnet && (
+                      <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded">
+                        Test Tokens
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
                     <span className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white font-mono tabular-nums break-all">
                       {usdcBalance ? formatNumber(parseFloat(formatUnits(usdcBalance as bigint, USDC_DECIMALS))) : '0.00'}

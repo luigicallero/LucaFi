@@ -1,9 +1,13 @@
 import { WalletConnect } from "@/components/WalletConnect";
 import { DepositCard } from "@/components/DepositCard";
+import { NetworkSwitcher } from "@/components/NetworkSwitcher";
+import { TestnetFaucet } from "@/components/TestnetFaucet";
+import { TestnetWrapper } from "@/components/TestnetWrapper";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-indigo-950 dark:to-purple-950">
+    <TestnetWrapper>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-indigo-950 dark:to-purple-950 testnet-mode:bg-gradient-to-br testnet-mode:from-gray-100 testnet-mode:via-gray-200 testnet-mode:to-gray-300 testnet-mode:dark:from-gray-900 testnet-mode:dark:via-gray-800 testnet-mode:dark:to-gray-900 transition-colors duration-500" suppressHydrationWarning>
       {/* Header */}
       <header className="border-b border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/70 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -19,15 +23,18 @@ export default function Home() {
                 <p className="text-xs text-gray-600 dark:text-gray-400">Decentralized Finance</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="hidden md:block">
+                <NetworkSwitcher />
+              </div>
               <div className="hidden sm:flex items-center gap-2 bg-green-100 dark:bg-green-900/30 px-4 py-2 rounded-full">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span className="text-sm font-medium text-green-700 dark:text-green-300">5% Weekly</span>
               </div>
               <a 
                 href="https://metamask.io/" 
-            target="_blank"
-            rel="noopener noreferrer"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 Get MetaMask
@@ -58,12 +65,18 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Network Switcher (Mobile) */}
+        <div className="md:hidden mb-8">
+          <NetworkSwitcher />
+        </div>
+
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          {/* Left Column - Wallet Connection */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
+          {/* Left Column - Wallet Connection & Faucet */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="sticky top-8 space-y-6">
               <WalletConnect />
+              <TestnetFaucet />
             </div>
           </div>
 
@@ -192,6 +205,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </TestnetWrapper>
   );
 }

@@ -48,17 +48,20 @@ export function DepositCard() {
 
   useEffect(() => {
     setMounted(true)
-    // Load deposits from localStorage
+    // Load deposits from localStorage (network-specific)
     // TODO: MIGRATE TO DATABASE - Currently using localStorage as temporary solution
     // This should be replaced with API calls to Supabase/Firebase for production
     // See README "Next Steps / Pending Actions" section for migration plan
-    if (typeof window !== 'undefined' && address) {
-      const stored = localStorage.getItem(`lucafi_deposits_${address}`)
+    if (typeof window !== 'undefined' && address && chainId) {
+      const networkName = chainId === 97 ? 'testnet' : chainId === 56 ? 'mainnet' : 'unknown'
+      const stored = localStorage.getItem(`lucafi_deposits_${address}_${networkName}`)
       if (stored) {
         setDeposits(JSON.parse(stored))
+      } else {
+        setDeposits([]) // Clear deposits when switching networks
       }
     }
-  }, [address])
+  }, [address, chainId])
 
   // Update balance (recalculates when deposits change or every minute)
   useEffect(() => {
@@ -116,8 +119,10 @@ export function DepositCard() {
     
     // Save to localStorage (TEMPORARY - TODO: Replace with database API call)
     // In production, this should POST to /api/deposits endpoint
-    if (typeof window !== 'undefined' && address) {
-      localStorage.setItem(`lucafi_deposits_${address}`, JSON.stringify(updatedDeposits))
+    // Deposits are saved per network (testnet/mainnet)
+    if (typeof window !== 'undefined' && address && chainId) {
+      const networkName = chainId === 97 ? 'testnet' : chainId === 56 ? 'mainnet' : 'unknown'
+      localStorage.setItem(`lucafi_deposits_${address}_${networkName}`, JSON.stringify(updatedDeposits))
     }
 
     setDepositAmount('')
@@ -128,9 +133,11 @@ export function DepositCard() {
     
     // Clear all deposits (TEMPORARY - TODO: Replace with database API call)
     // In production, this should DELETE via /api/deposits endpoint
+    // Clear deposits for current network only
     setDeposits([])
-    if (typeof window !== 'undefined' && address) {
-      localStorage.removeItem(`lucafi_deposits_${address}`)
+    if (typeof window !== 'undefined' && address && chainId) {
+      const networkName = chainId === 97 ? 'testnet' : chainId === 56 ? 'mainnet' : 'unknown'
+      localStorage.removeItem(`lucafi_deposits_${address}_${networkName}`)
     }
     setCurrentBalance(0)
   }
@@ -182,10 +189,25 @@ export function DepositCard() {
   return (
     <div className="space-y-6">
       {/* Current Balance Card */}
-      <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-950 p-8 rounded-2xl border-2 border-green-300 dark:border-green-700 shadow-xl">
+      <div className={`p-8 rounded-2xl border-2 shadow-xl transition-colors duration-500 ${
+        chainId === 97 
+          ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 border-gray-400 dark:border-gray-600' 
+          : 'bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-950 border-green-300 dark:border-green-700'
+      }`}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Your Balance</h3>
-          <span className="text-sm bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-3 py-1 rounded-full font-medium">
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Your Balance</h3>
+            {chainId === 97 && (
+              <span className="text-xs bg-orange-200 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded font-medium">
+                Test Mode
+              </span>
+            )}
+          </div>
+          <span className={`text-sm px-3 py-1 rounded-full font-medium transition-colors ${
+            chainId === 97
+              ? 'bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+              : 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
+          }`}>
             {weeklyRate}% Weekly
           </span>
         </div>
@@ -296,9 +318,14 @@ export function DepositCard() {
       {/* Active Deposits */}
       {deposits.length > 0 && (
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Active Deposits ({deposits.length})
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Active Deposits ({deposits.length})
+            </h3>
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+              {chainId === 97 ? '🧪 Testnet' : '🟢 Mainnet'}
+            </span>
+          </div>
           <div className="space-y-3">
             {deposits.map((deposit, index) => {
               const current = calculateCurrentBalance(deposit.amount, deposit.timestamp)
